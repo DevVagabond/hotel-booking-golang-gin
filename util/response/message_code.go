@@ -31,4 +31,10 @@ var ResponseMap = map[string]map[string]interface{}{
 		"desc":        "Invalid password.",
 		"messageCode": "INVALID_PASSWORD",
 	},
+	"USER_NOT_FOUND": {
+		"code":        400,
+		"title":       "User Not Found",
+		"desc":        "User not found",
+		"messageCode": "USER_NOT_FOUND",
+	},
 }
