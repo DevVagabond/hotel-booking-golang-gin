@@ -4,10 +4,10 @@ import "fmt"
 
 type ErrArg struct {
 	Title       string `json:"title"`
-	Code        int16  `json:"code"`
+	Code        string `json:"code"`
 	Description string `json:"description"`
 }
 
 func (e *ErrArg) Error() string {
-	return fmt.Sprintf("%d - %s -- %s", e.Code, e.Title, e.Description)
+	return fmt.Sprintf("%s - %s -- %s", e.Code, e.Title, e.Description)
 }

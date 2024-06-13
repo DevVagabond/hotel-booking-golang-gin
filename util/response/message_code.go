@@ -19,4 +19,10 @@ var ResponseMap = map[string]map[string]interface{}{
 		"desc":        "Request was successful",
 		"messageCode": "OK",
 	},
+	"USER_ALREADY_EXISTS": {
+		"code":        400,
+		"title":       "User Already Exists",
+		"desc":        "User already exists",
+		"messageCode": "USER_ALREADY_EXISTS",
+	},
 }
