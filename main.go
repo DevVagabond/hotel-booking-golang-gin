@@ -23,6 +23,7 @@ func main() {
 		v1_user := v1.Group("/user")
 
 		v1_user.POST("/create", user_middlewares.UserValidator, user_controller.CreateUser)
+		v1_user.POST("/login", user_middlewares.UserLoginValidator, user_controller.LoginUser)
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080

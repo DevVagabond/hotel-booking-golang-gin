@@ -22,3 +22,17 @@ func CreateUser(c *gin.Context) {
 		c.JSON(http.StatusOK, response)
 	}
 }
+
+func LoginUser(c *gin.Context) {
+
+	// Call the service function
+
+	user, error := user_service.LoginUser(c.MustGet("User").(user_interface.UserLogin))
+
+	if error != nil {
+		c.JSON(http.StatusBadRequest, response_handler.Error("USER_NOT_FOUND", error))
+	} else {
+		response := response_handler.OK(user)
+		c.JSON(http.StatusOK, response)
+	}
+}

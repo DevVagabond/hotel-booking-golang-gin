@@ -22,3 +22,24 @@ func CreateUser(userData user_interface.User) (user_interface.User, *error_handl
 	initializers.DB.Create(&userData)
 	return userData, nil
 }
+
+func LoginUser(userData user_interface.UserLogin) (user_interface.User, *error_handler.ErrArg) {
+	user := user_interface.User{}
+	initializers.DB.Where(&user_interface.User{Email: userData.Email}).First(&user)
+	fmt.Printf("%+v\n", user)
+	if user.ID == 0 {
+		return user_interface.User{}, &error_handler.ErrArg{
+			Code:        "USER_NOT_FOUND",
+			Description: "User not found",
+			Title:       "User not found",
+		}
+	}
+	if !crypto_util.CheckPasswordHash(userData.Password, user.Password) {
+		return user_interface.User{}, &error_handler.ErrArg{
+			Code:        "INVALID_PASSWORD",
+			Description: "Invalid password",
+			Title:       "Invalid password",
+		}
+	}
+	return user, nil
+}

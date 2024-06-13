@@ -25,4 +25,10 @@ var ResponseMap = map[string]map[string]interface{}{
 		"desc":        "User already exists",
 		"messageCode": "USER_ALREADY_EXISTS",
 	},
+	"INVALID_PASSWORD": {
+		"code":        400,
+		"title":       "Invalid Password",
+		"desc":        "Invalid password.",
+		"messageCode": "INVALID_PASSWORD",
+	},
 }
