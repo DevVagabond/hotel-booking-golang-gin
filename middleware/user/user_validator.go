@@ -30,12 +30,30 @@ func UserValidator(c *gin.Context) {
 	if bodyContent["role"] == nil {
 		bodyContent["role"] = "USER"
 	}
+	if bodyContent["role"].(string) != "USER" && bodyContent["role"].(string) != "MERCHANT" {
+		c.JSON(http.StatusBadRequest, response_handler.Error("VALIDATION_ERROR", &error_handler.ErrArg{
+			Code:        "VALIDATION_ERROR",
+			Description: "Role must be either MERCHANT or USER",
+		}))
+		c.Abort()
+		return
+	}
+
+	if bodyContent["IsActive"] == nil {
+		bodyContent["IsActive"] = true
+	}
+
+	if bodyContent["IsVerified"] == nil {
+		bodyContent["IsVerified"] = false
+	}
 
 	user_obj := user_interface.User{
-		Name:     bodyContent["name"].(string),
-		Email:    bodyContent["email"].(string),
-		Password: bodyContent["password"].(string),
-		Role:     bodyContent["role"].(string),
+		Name:       bodyContent["name"].(string),
+		Email:      bodyContent["email"].(string),
+		Password:   bodyContent["password"].(string),
+		Role:       bodyContent["role"].(string),
+		IsActive:   bodyContent["IsActive"].(bool),
+		IsVerified: bodyContent["IsVerified"].(bool),
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
