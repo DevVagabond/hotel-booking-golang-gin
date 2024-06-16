@@ -32,7 +32,21 @@ func LoginUser(c *gin.Context) {
 	if error != nil {
 		c.JSON(http.StatusBadRequest, response_handler.Error("USER_NOT_FOUND", error))
 	} else {
-		response := response_handler.OK(user)
+
+		session, error := user_service.CreateSession(user)
+
+		if error != nil {
+			c.JSON(http.StatusBadRequest, response_handler.Error("SESSION_CREATION_ERROR", error))
+			return
+		}
+		response := response_handler.OK(user_interface.UserLoginResponse{
+			AccessToken:  session.AccessToken,
+			RefreshToken: session.RefreshToken,
+			ExpireAt:     session.ExpireAt,
+			Name:         user.Name,
+			Email:        user.Email,
+			Role:         user.Role,
+		})
 		c.JSON(http.StatusOK, response)
 	}
 }

@@ -31,6 +31,9 @@ func InitDatabase() *gorm.DB {
 	if err != nil {
 		log.Fatal("Error loading database")
 	}
-	DB.AutoMigrate(&user_interface.User{})
+	DB.AutoMigrate(
+		&user_interface.User{},
+		&user_interface.UserSession{},
+	)
 	return DB
 }
