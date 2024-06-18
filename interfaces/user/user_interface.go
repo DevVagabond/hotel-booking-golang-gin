@@ -1,18 +1,21 @@
 package user_interface
 
 import (
+	hotel_interface "hotel-booking-golang-gin/interfaces/hotel"
+
 	"github.com/golang-jwt/jwt"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	Name       string `json:"name" validate:"required"`
-	Email      string `json:"email" validate:"required,email"`
-	Password   string `json:"password" validate:"required"`
-	Role       string `json:"role"`
-	IsActive   bool   `json:"is_active"`
-	IsVerified bool   `json:"is_verified"`
+	Name       string                  `json:"name" validate:"required"`
+	Email      string                  `json:"email" validate:"required,email"`
+	Password   string                  `json:"password" validate:"required"`
+	Role       string                  `json:"role"`
+	IsActive   bool                    `json:"is_active"`
+	IsVerified bool                    `json:"is_verified"`
+	Hotels     []hotel_interface.Hotel `gorm:"foreignKey:OwnerID"`
 }
 
 type UserLogin struct {
