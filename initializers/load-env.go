@@ -2,6 +2,7 @@ package initializers
 
 import (
 	"fmt"
+	hotel_interface "hotel-booking-golang-gin/interfaces/hotel"
 	user_interface "hotel-booking-golang-gin/interfaces/user"
 	"log"
 	"os"
@@ -34,6 +35,7 @@ func InitDatabase() *gorm.DB {
 	DB.AutoMigrate(
 		&user_interface.User{},
 		&user_interface.UserSession{},
+		&hotel_interface.Hotel{},
 	)
 	return DB
 }

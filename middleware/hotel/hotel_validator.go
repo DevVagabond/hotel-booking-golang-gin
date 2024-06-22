@@ -2,8 +2,11 @@ package hotel_middleware
 
 import (
 	"encoding/json"
+	"fmt"
 	hotel_interface "hotel-booking-golang-gin/interfaces/hotel"
+	user_interface "hotel-booking-golang-gin/interfaces/user"
 	"io"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -11,6 +14,9 @@ import (
 
 func HotelValidator(context *gin.Context) {
 	// Validate the incoming request
+
+	fmt.Print("HotelValidator middleware\n", context.MustGet("User"))
+	owner := context.MustGet("User").(user_interface.User)
 	requestBodyBytes, error := io.ReadAll(context.Request.Body)
 
 	if error != nil {
@@ -33,9 +39,6 @@ func HotelValidator(context *gin.Context) {
 	if requestBodyContent["IsActive"] == nil {
 		requestBodyContent["IsActive"] = true
 	}
-	if requestBodyContent["IsVerified"] == nil {
-		requestBodyContent["IsVerified"] = false
-	}
 
 	if requestBodyContent["website"] == nil {
 		requestBodyContent["website"] = ""
@@ -47,6 +50,9 @@ func HotelValidator(context *gin.Context) {
 		requestBodyContent["Longitude"] = 0.0
 	}
 
+	fmt.Println("=== lon====", reflect.TypeOf(requestBodyContent["Longitude"]))
+	fmt.Println("=== lat====", requestBodyContent["Latitude"])
+
 	hotelObj := hotel_interface.HotelInput{
 		Name:       requestBodyContent["name"].(string),
 		Address:    requestBodyContent["address"].(string),
@@ -54,9 +60,10 @@ func HotelValidator(context *gin.Context) {
 		Email:      requestBodyContent["email"].(string),
 		Website:    requestBodyContent["website"].(string),
 		IsActive:   requestBodyContent["IsActive"].(bool),
-		IsVerified: requestBodyContent["IsVerified"].(bool),
-		Latitude:   requestBodyContent["Latitude"].(float32),
-		Longitude:  requestBodyContent["Longitude"].(float32),
+		IsVerified: false,
+		Latitude:   float32(requestBodyContent["Latitude"].(float64)),
+		Longitude:  float32(requestBodyContent["Longitude"].(float64)),
+		OwnerID:    owner.ID,
 	}
 
 	validator := validator.New(validator.WithRequiredStructEnabled())

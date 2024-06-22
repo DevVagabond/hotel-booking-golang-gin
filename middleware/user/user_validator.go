@@ -2,14 +2,18 @@ package user_middlewares
 
 import (
 	"encoding/json"
+	"fmt"
+	"hotel-booking-golang-gin/initializers"
 	user_interface "hotel-booking-golang-gin/interfaces/user"
 	error_handler "hotel-booking-golang-gin/util/error"
 	response_handler "hotel-booking-golang-gin/util/response"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt"
 )
 
 func UserValidator(c *gin.Context) {
@@ -109,4 +113,97 @@ func UserLoginValidator(c *gin.Context) {
 
 	c.Set("User", user_obj)
 	c.Next()
+}
+
+func ForRole(role string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user := c.MustGet("User").(user_interface.User)
+		if user.Role != role {
+			c.JSON(http.StatusUnauthorized, response_handler.Error("UNAUTHORIZED", &error_handler.ErrArg{
+				Code:        "UNAUTHORIZED",
+				Description: "Unauthorized",
+			}))
+			c.Abort()
+			return
+		}
+		fmt.Println("Role is correct", user.Role)
+		c.Next()
+	}
+}
+
+func Authenticate(c *gin.Context) {
+	// Get the token from the header
+	accessToken := c.GetHeader("Authorization")
+	if accessToken == "" {
+		c.JSON(http.StatusUnauthorized, response_handler.Error("UNAUTHORIZED", &error_handler.ErrArg{
+			Code:        "UNAUTHORIZED",
+			Description: "Unauthorized",
+		}))
+		c.Abort()
+		return
+	}
+
+	// Validate the token
+	user, err := ValidateToken(accessToken)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, response_handler.Error("UNAUTHORIZED", &error_handler.ErrArg{
+			Code:        "UNAUTHORIZED",
+			Description: "Unauthorized",
+		}))
+		c.Abort()
+		return
+	}
+
+	c.Set("User", user)
+	c.Next()
+}
+
+func ValidateToken(token string) (user_interface.User, error) {
+	// Validate the token
+	claims := ParseAccessToken(token)
+
+	if claims.StandardClaims.Valid() != nil {
+		return user_interface.User{}, claims.StandardClaims.Valid()
+	}
+
+	userSession := user_interface.UserSession{}
+	initializers.DB.Where(&user_interface.UserSession{
+		AccessToken: token,
+	}).First(&userSession)
+
+	if userSession.ID == 0 {
+		return user_interface.User{}, &error_handler.ErrArg{
+			Code:        "SESSION_NOT_FOUND",
+			Description: "User not found",
+			Title:       "User not found",
+		}
+	}
+
+	user := user_interface.User{}
+	initializers.DB.First(&user, userSession.UserID)
+
+	if user.ID == 0 {
+		return user_interface.User{}, &error_handler.ErrArg{
+			Code:        "USER_NOT_FOUND",
+			Description: "User not found",
+			Title:       "User not found",
+		}
+	}
+
+	return user, nil
+}
+
+func ParseAccessToken(accessToken string) *user_interface.UserClaims {
+	parsedAccessToken, _ := jwt.ParseWithClaims(accessToken, &user_interface.UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("secret")), nil
+	})
+
+	return parsedAccessToken.Claims.(*user_interface.UserClaims)
+}
+
+func ParseRefreshToken(refreshToken string) *jwt.StandardClaims {
+	parsedRefreshToken, _ := jwt.ParseWithClaims(refreshToken, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("refreshsecret")), nil
+	})
+	return parsedRefreshToken.Claims.(*jwt.StandardClaims)
 }

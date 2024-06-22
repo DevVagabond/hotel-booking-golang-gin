@@ -26,6 +26,7 @@ type HotelInput struct {
 	IsVerified bool    `json:"is_verified"`
 	Latitude   float32 `json:"latitude"`
 	Longitude  float32 `json:"longitude"`
+	OwnerID    uint    `json:"owner_id"`
 }
 
 type HotelResponse struct {
