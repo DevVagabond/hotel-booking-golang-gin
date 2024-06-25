@@ -36,3 +36,112 @@ func CreateHotel(hotel hotel_interface.HotelInput) (hotel_interface.Hotel, *erro
 
 	return hotelResponse, nil
 }
+
+func ListHotel(query *hotel_interface.HotelQuery) []hotel_interface.Hotel {
+	hotelQuery := hotel_interface.Hotel{
+		IsActive:   true,
+		IsVerified: true,
+	}
+
+	if (*query).ID != 0 {
+		hotelQuery.ID = (*query).ID
+	}
+	if (*query).OwnerID != 0 {
+		hotelQuery.OwnerID = (*query).OwnerID
+	}
+
+	hotels := []hotel_interface.Hotel{}
+	initializers.DB.Where(hotelQuery).Find(&hotels)
+	return hotels
+}
+
+func UpdateHotel(hotel hotel_interface.HotelInput, hotelId uint, owner uint) (hotel_interface.Hotel, *error_handler.ErrArg) {
+
+	hotelObj := hotel_interface.Hotel{}
+	initializers.DB.Where(&hotel_interface.Hotel{
+		ID:      hotelId,
+		OwnerID: owner,
+	}).First(&hotelObj)
+
+	if hotelObj.ID == 0 {
+		return hotel_interface.Hotel{}, &error_handler.ErrArg{
+			Code:        "HOTEL_NOT_FOUND",
+			Description: "Hotel not found",
+			Title:       "Hotel not found",
+		}
+	}
+
+	hotelObj.Name = hotel.Name
+	hotelObj.Address = hotel.Address
+	hotelObj.Phone = hotel.Phone
+	hotelObj.Email = hotel.Email
+	hotelObj.Website = hotel.Website
+	hotelObj.IsActive = hotel.IsActive
+	hotelObj.Latitude = hotel.Latitude
+	hotelObj.Longitude = hotel.Longitude
+
+	res := initializers.DB.Save(&hotelObj)
+
+	if res.Error != nil {
+		return hotel_interface.Hotel{}, &error_handler.ErrArg{
+			Code:        "HOTEL_UPDATE_FAILED",
+			Description: "Hotel update failed",
+			Title:       "Hotel update failed",
+		}
+	}
+
+	return hotelObj, nil
+}
+
+func VerifyHotel(hotelId uint) (hotel_interface.Hotel, *error_handler.ErrArg) {
+	hotelObj := hotel_interface.Hotel{}
+	initializers.DB.Where(&hotel_interface.Hotel{
+		ID: hotelId,
+	}).First(&hotelObj)
+
+	if hotelObj.ID == 0 {
+		return hotel_interface.Hotel{}, &error_handler.ErrArg{
+			Code:        "HOTEL_NOT_FOUND",
+			Description: "Hotel not found",
+			Title:       "Hotel not found",
+		}
+	}
+
+	hotelObj.IsVerified = true
+
+	res := initializers.DB.Save(&hotelObj)
+
+	if res.Error != nil {
+		return hotel_interface.Hotel{}, &error_handler.ErrArg{
+			Code:        "HOTEL_VERIFICATION_FAILED",
+			Description: "Hotel verification failed",
+			Title:       "Hotel verification failed",
+		}
+	}
+
+	return hotelObj, nil
+}
+
+func AddHotelRoom(room hotel_interface.HotelRoomInput) {
+	hotelRoomObj := hotel_interface.HotelRoom{
+		Name:        room.Name,
+		Description: room.Description,
+		RoomCount:   room.RoomCount,
+		RentPrice:   room.RentPrice,
+		HotelID:     room.HotelID,
+	}
+
+	hotelResponse := hotel_interface.HotelRoomResponse{}
+
+	initializers.DB.Create(&hotelRoomObj)
+	initializers.DB.First(&hotelResponse, hotelRoomObj.ID)
+
+	for i := 0; i < len(room.AmenityList); i++ {
+		initializers.DB.Create(&hotel_interface.RoomAmenities{
+			AmenityType: room.AmenityList[i].AmenityType,
+			Description: room.AmenityList[i].Description,
+			HotelRoomID: hotelRoomObj.ID,
+		})
+	}
+
+}

@@ -36,6 +36,8 @@ func InitDatabase() *gorm.DB {
 		&user_interface.User{},
 		&user_interface.UserSession{},
 		&hotel_interface.Hotel{},
+		&hotel_interface.HotelRoom{},
+		&hotel_interface.RoomAmenities{},
 	)
 	return DB
 }

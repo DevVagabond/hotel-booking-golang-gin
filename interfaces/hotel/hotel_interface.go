@@ -1,9 +1,16 @@
 package hotel_interface
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Hotel struct {
 	gorm.Model
+	ID         uint `gorm:"primarykey"`
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 	Name       string  `json:"name" validate:"required"`
 	Address    string  `json:"address" validate:"required"`
 	Phone      string  `json:"phone" validate:"required"`
@@ -42,4 +49,58 @@ type HotelResponse struct {
 	Longitude  float32 `json:"longitude"`
 	CreatedAt  string  `json:"created_at"`
 	UpdatedAt  string  `json:"updated_at"`
+}
+
+type HotelRoomInput struct {
+	Name        string                    `json:"name" validate:"required"`
+	Description string                    `json:"description" validate:"required"`
+	AmenityList []HotelRoomAmenitiesInput `json:"amenityList"`
+	RoomCount   int                       `json:"availableRoom" validate:"required"`
+	RentPrice   float32                   `json:"rentPrice" validate:"required"`
+	HotelID     uint                      `json:"hotelId" validate:"required"`
+}
+
+type HotelRoomAmenitiesInput struct {
+	AmenityType string `json:"type" validate:"required"`
+	Description string `json:"description" validate:"required"`
+}
+
+type HotelQuery struct {
+	ID      uint
+	OwnerID uint
+}
+
+type HotelRoom struct {
+	gorm.Model
+	ID          uint `gorm:"primarykey"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Name        string                    `json:"name" validate:"required"`
+	Description string                    `json:"description" validate:"required"`
+	AmenityList []HotelRoomAmenitiesInput `json:"amenityList"`
+	RoomCount   int                       `json:"availableRoom" validate:"required"`
+	RentPrice   float32                   `json:"rentPrice" validate:"required"`
+	HotelID     uint                      `json:"hotelId" validate:"required"`
+}
+
+type RoomAmenities struct {
+	gorm.Model
+	ID          uint `gorm:"primarykey"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	AmenityType string `json:"type" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	HotelRoomID uint
+}
+
+type HotelRoomResponse struct {
+	ID          uint
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	Name        string                    `json:"name" validate:"required"`
+	Description string                    `json:"description" validate:"required"`
+	AmenityList []HotelRoomAmenitiesInput `json:"amenityList"`
+	RoomCount   int                       `json:"availableRoom" validate:"required"`
+	RentPrice   float32                   `json:"rentPrice" validate:"required"`
+	HotelID     uint                      `json:"hotelId" validate:"required"`
 }

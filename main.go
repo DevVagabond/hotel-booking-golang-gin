@@ -35,6 +35,21 @@ func main() {
 			hotel_middleware.HotelValidator,
 			hotel_controller.CreateHotel,
 		)
+
+		v1_hotel.GET("/list", user_middlewares.Authenticate, hotel_controller.ListHotel)
+
+		v1_hotel.PUT("/update/:id",
+			user_middlewares.Authenticate,
+			user_middlewares.ForRole("MERCHANT"),
+			hotel_middleware.HotelValidator,
+			hotel_controller.UpdateHotel,
+		)
+
+		v1_hotel.PUT("/verify/:id",
+			user_middlewares.Authenticate,
+			user_middlewares.ForRole("SUPER_ADMIN"),
+			hotel_controller.VerifyHotel,
+		)
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080
