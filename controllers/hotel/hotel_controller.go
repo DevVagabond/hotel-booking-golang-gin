@@ -82,6 +82,7 @@ func VerifyHotel(context *gin.Context) {
 
 func AddHotelRoom(context *gin.Context) {
 
-	roomData := context.MustGet("Room").(hotel_interface.HotelInput)
+	roomData := context.MustGet("Room").(hotel_interface.HotelRoomInput)
+	response, error := hotel_service.AddHotelRoom(roomData)
 
 }

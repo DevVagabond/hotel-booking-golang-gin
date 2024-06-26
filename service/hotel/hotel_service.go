@@ -122,7 +122,7 @@ func VerifyHotel(hotelId uint) (hotel_interface.Hotel, *error_handler.ErrArg) {
 	return hotelObj, nil
 }
 
-func AddHotelRoom(room hotel_interface.HotelRoomInput) {
+func AddHotelRoom(room hotel_interface.HotelRoomInput) (hotel_interface.HotelRoom, error) {
 	hotelRoomObj := hotel_interface.HotelRoom{
 		Name:        room.Name,
 		Description: room.Description,
@@ -133,7 +133,14 @@ func AddHotelRoom(room hotel_interface.HotelRoomInput) {
 
 	hotelResponse := hotel_interface.HotelRoomResponse{}
 
-	initializers.DB.Create(&hotelRoomObj)
+	res := initializers.DB.Create(&hotelRoomObj)
+	if res.Error != nil {
+		return hotel_interface.HotelRoom{}, &error_handler.ErrArg{
+			Code:        "ROOM_ERROR",
+			Title:       "Room creation error",
+			Description: res.Error.Error(),
+		}
+	}
 	initializers.DB.First(&hotelResponse, hotelRoomObj.ID)
 
 	for i := 0; i < len(room.AmenityList); i++ {
@@ -143,5 +150,7 @@ func AddHotelRoom(room hotel_interface.HotelRoomInput) {
 			HotelRoomID: hotelRoomObj.ID,
 		})
 	}
+
+	return hotelRoomObj, nil
 
 }
