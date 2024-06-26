@@ -83,6 +83,12 @@ func VerifyHotel(context *gin.Context) {
 func AddHotelRoom(context *gin.Context) {
 
 	roomData := context.MustGet("Room").(hotel_interface.HotelRoomInput)
-	response, error := hotel_service.AddHotelRoom(roomData)
+	dbresponse, error := hotel_service.AddHotelRoom(roomData)
+	if error != nil {
+		context.JSON(http.StatusBadRequest, response_handler.Error("HOTEL_VERIFICATION_FAILED", error))
+	} else {
+		response := response_handler.OK(dbresponse)
+		context.JSON(http.StatusOK, response)
+	}
 
 }

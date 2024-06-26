@@ -122,7 +122,7 @@ func VerifyHotel(hotelId uint) (hotel_interface.Hotel, *error_handler.ErrArg) {
 	return hotelObj, nil
 }
 
-func AddHotelRoom(room hotel_interface.HotelRoomInput) (hotel_interface.HotelRoom, error) {
+func AddHotelRoom(room hotel_interface.HotelRoomInput) (hotel_interface.HotelRoom, *error_handler.ErrArg) {
 	hotelRoomObj := hotel_interface.HotelRoom{
 		Name:        room.Name,
 		Description: room.Description,
