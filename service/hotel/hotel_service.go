@@ -38,10 +38,10 @@ func CreateHotel(hotel hotel_interface.HotelInput) (hotel_interface.Hotel, *erro
 }
 
 func ListHotel(query *hotel_interface.HotelQuery) []hotel_interface.Hotel {
-	hotelQuery := hotel_interface.Hotel{
-		IsActive:   true,
-		IsVerified: true,
-	}
+	hotelQuery := hotel_interface.Hotel{}
+
+	hotelQuery.IsActive = query.IsActive
+	hotelQuery.IsVerified = query.IsActive
 
 	if (*query).ID != 0 {
 		hotelQuery.ID = (*query).ID
@@ -51,7 +51,7 @@ func ListHotel(query *hotel_interface.HotelQuery) []hotel_interface.Hotel {
 	}
 
 	hotels := []hotel_interface.Hotel{}
-	initializers.DB.Where(hotelQuery).Find(&hotels)
+	initializers.DB.Where(hotelQuery).Preload("Rooms.AmenityList").Find(&hotels)
 	return hotels
 }
 
@@ -131,7 +131,7 @@ func AddHotelRoom(room hotel_interface.HotelRoomInput) (hotel_interface.HotelRoo
 		HotelID:     room.HotelID,
 	}
 
-	hotelResponse := hotel_interface.HotelRoomResponse{}
+	hotelResponse := hotel_interface.HotelRoom{}
 
 	res := initializers.DB.Create(&hotelRoomObj)
 	if res.Error != nil {

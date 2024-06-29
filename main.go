@@ -50,6 +50,12 @@ func main() {
 			user_middlewares.ForRole("SUPER_ADMIN"),
 			hotel_controller.VerifyHotel,
 		)
+		v1_hotel.POST("/room/create",
+			user_middlewares.Authenticate,
+			user_middlewares.ForRole("MERCHANT"),
+			hotel_middleware.ValidateHotelRoomInput,
+			hotel_controller.AddHotelRoom,
+		)
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080

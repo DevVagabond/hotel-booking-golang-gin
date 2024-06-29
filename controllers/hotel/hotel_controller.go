@@ -23,7 +23,6 @@ func CreateHotel(context *gin.Context) {
 		response := response_handler.OK(hotelObj)
 		context.JSON(http.StatusOK, response)
 	}
-
 }
 
 func ListHotel(context *gin.Context) {
