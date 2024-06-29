@@ -107,3 +107,25 @@ type HotelRoomResponse struct {
 	RentPrice   float32         `json:"rentPrice" validate:"required"`
 	HotelID     uint            `json:"hotelId" validate:"required"`
 }
+
+type Booking struct {
+	gorm.Model
+	ID        uint      `gorm:"primarykey" json:"id"`
+	UserID    uint      `json:"userId" gorm:"not null"`
+	RoomID    uint      `json:"roomId" gorm:"not null"`
+	CheckIn   time.Time `json:"checkIn" gorm:"not null"`
+	CheckOut  time.Time `json:"checkOut" gorm:"not null"`
+	TotalCost float32   `json:"totalCost" gorm:"not null"`
+	Status    string    `json:"status" gorm:"not null"`
+	IsPaid    bool      `json:"isPaid"`
+}
+
+type BookingInput struct {
+	UserID    uint      `json:"userId" gorm:"not null"`
+	RoomID    uint      `json:"roomId" gorm:"not null"`
+	CheckIn   time.Time `json:"checkIn" gorm:"not null"`
+	CheckOut  time.Time `json:"checkOut" gorm:"not null"`
+	TotalCost float32   `json:"totalCost" gorm:"not null"`
+	Status    string    `json:"status" gorm:"not null"`
+	IsPaid    bool      `json:"isPaid"`
+}
