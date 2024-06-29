@@ -56,6 +56,10 @@ func main() {
 			hotel_middleware.ValidateHotelRoomInput,
 			hotel_controller.AddHotelRoom,
 		)
+
+		v1_hotel.POST("/room/book",
+			user_middlewares.Authenticate,
+		)
 	}
 
 	r.Run() // listen and serve on 0.0.0.0:8080
