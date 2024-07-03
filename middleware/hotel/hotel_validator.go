@@ -3,6 +3,7 @@ package hotel_middleware
 import (
 	"encoding/json"
 	"fmt"
+	"hotel-booking-golang-gin/initializers"
 	hotel_interface "hotel-booking-golang-gin/interfaces/hotel"
 	user_interface "hotel-booking-golang-gin/interfaces/user"
 	hotel_service "hotel-booking-golang-gin/service/hotel"
@@ -169,4 +170,67 @@ func ValidateHotelRoomInput(context *gin.Context) {
 	context.Set("Room", bodyContent)
 
 	context.Next()
+}
+
+func ValidateBooking(context *gin.Context) {
+	user := context.MustGet("User").(user_interface.User)
+
+	bodyBytes, error := io.ReadAll(context.Request.Body)
+
+	if error != nil {
+		context.JSON(400, gin.H{"error": "error"})
+		context.Abort()
+		return
+	}
+
+	bodyContent := hotel_interface.BookingInput{}
+
+	json.Unmarshal(bodyBytes, &bodyContent)
+
+	validator := validator.New(validator.WithRequiredStructEnabled())
+
+	error = validator.Struct(&bodyContent)
+
+	if error != nil {
+		context.JSON(400, gin.H{"error": error.Error()})
+		context.Abort()
+		return
+	}
+
+	bodyContent.UserID = user.ID
+	bodyContent.IsPaid = true
+
+	//function to check room availability
+
+	room := hotel_interface.HotelRoom{}
+
+	initializers.DB.First(&room, bodyContent.RoomID)
+
+	if room.ID == 0 {
+		context.JSON(400, gin.H{"error": "Invalid room id"})
+		context.Abort()
+		return
+	}
+
+	var overlappingBookings int64
+	initializers.DB.Model(&hotel_interface.Booking{}).Where(
+		"room_id = ? AND ((check_in <= ? AND check_out >= ?) OR (check_in < ? AND check_out >= ?) OR (check_in <= ? AND check_out > ?))",
+		bodyContent.RoomID, bodyContent.CheckIn, bodyContent.CheckIn, bodyContent.CheckOut, bodyContent.CheckOut, bodyContent.CheckIn, bodyContent.CheckOut,
+	).Count(&overlappingBookings)
+
+	if overlappingBookings > 0 {
+		context.JSON(400, gin.H{"error": "Room is not available for the selected dates"})
+		context.Abort()
+		return
+	}
+
+	stayDuration := bodyContent.CheckOut.Sub(bodyContent.CheckIn).Hours() / 24
+
+	totalPrice := stayDuration * float64(room.RentPrice)
+
+	bodyContent.TotalCost = float32(totalPrice)
+
+	context.Set("Booking", bodyContent)
+	context.Next()
+
 }

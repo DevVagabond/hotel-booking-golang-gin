@@ -122,10 +122,10 @@ type Booking struct {
 
 type BookingInput struct {
 	UserID    uint      `json:"userId" gorm:"not null"`
-	RoomID    uint      `json:"roomId" gorm:"not null"`
-	CheckIn   time.Time `json:"checkIn" gorm:"not null"`
-	CheckOut  time.Time `json:"checkOut" gorm:"not null"`
-	TotalCost float32   `json:"totalCost" gorm:"not null"`
+	RoomID    uint      `json:"roomId" gorm:"not null" validate:"required"`
+	CheckIn   time.Time `json:"checkIn" gorm:"not null" validate:"required"`
+	CheckOut  time.Time `json:"checkOut" gorm:"not null" validate:"required"`
+	TotalCost float32   `json:"totalCost" gorm:"not null" validate:"required"`
 	Status    string    `json:"status" gorm:"not null"`
 	IsPaid    bool      `json:"isPaid"`
 }
