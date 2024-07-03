@@ -149,9 +149,7 @@ func AddHotelRoom(room hotel_interface.HotelRoomInput) (hotel_interface.HotelRoo
 			HotelRoomID: hotelRoomObj.ID,
 		})
 	}
-
 	return hotelRoomObj, nil
-
 }
 
 func BookRoom(booking hotel_interface.BookingInput) (hotel_interface.Booking, *error_handler.ErrArg) {
@@ -174,6 +172,5 @@ func BookRoom(booking hotel_interface.BookingInput) (hotel_interface.Booking, *e
 		}
 	}
 	initializers.DB.First(&bookingObj, bookingObj.ID)
-
 	return bookingObj, nil
 }

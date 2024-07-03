@@ -89,5 +89,17 @@ func AddHotelRoom(context *gin.Context) {
 		response := response_handler.OK(dbresponse)
 		context.JSON(http.StatusOK, response)
 	}
+}
+
+func BookRoom(ctx *gin.Context) {
+	bookingData := ctx.MustGet("Booking").(hotel_interface.BookingInput)
+
+	res, error := hotel_service.BookRoom(bookingData)
+
+	if error != nil {
+		ctx.JSON(http.StatusBadRequest, response_handler.Error(error.Code, error))
+	}
+
+	ctx.JSON(http.StatusOK, res)
 
 }
