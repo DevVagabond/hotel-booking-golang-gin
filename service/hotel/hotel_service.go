@@ -33,7 +33,6 @@ func CreateHotel(hotel hotel_interface.HotelInput) (hotel_interface.Hotel, *erro
 			Title:       "Hotel creation failed",
 		}
 	}
-
 	return hotelResponse, nil
 }
 
@@ -153,4 +152,28 @@ func AddHotelRoom(room hotel_interface.HotelRoomInput) (hotel_interface.HotelRoo
 
 	return hotelRoomObj, nil
 
+}
+
+func BookRoom(booking hotel_interface.BookingInput) (hotel_interface.Booking, *error_handler.ErrArg) {
+	bookingObj := hotel_interface.Booking{
+		UserID:    booking.UserID,
+		RoomID:    booking.RoomID,
+		CheckIn:   booking.CheckIn,
+		CheckOut:  booking.CheckOut,
+		TotalCost: booking.TotalCost,
+		Status:    "BOOKED",
+		IsPaid:    booking.IsPaid,
+	}
+
+	res := initializers.DB.Create(&bookingObj)
+	if res.Error != nil {
+		return hotel_interface.Booking{}, &error_handler.ErrArg{
+			Title:       "BOOKING-ERROR",
+			Description: "Error while making booking",
+			Code:        "BOOKING_ERROR",
+		}
+	}
+	initializers.DB.First(&bookingObj, bookingObj.ID)
+
+	return bookingObj, nil
 }
